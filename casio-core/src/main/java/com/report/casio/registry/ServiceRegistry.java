@@ -5,5 +5,5 @@ import com.report.casio.config.ServiceConfig;
 
 @SPI("zk")
 public interface ServiceRegistry {
-    boolean register(ServiceConfig serviceConfig) throws Exception;
+    void register(ServiceConfig serviceConfig) throws Exception;
 }

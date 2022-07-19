@@ -18,6 +18,7 @@ public class CasioClassPathScanner extends ClassPathBeanDefinitionScanner {
         // 不适应Spring默认拦截器
         super(registry, false);
     }
+
     @Override
     protected Set<BeanDefinitionHolder> doScan(String... basePackages) {
         Set<BeanDefinitionHolder> holders = super.doScan(basePackages);

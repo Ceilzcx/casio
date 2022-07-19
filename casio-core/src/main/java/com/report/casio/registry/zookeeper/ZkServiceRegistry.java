@@ -10,7 +10,7 @@ import java.util.List;
 
 public class ZkServiceRegistry implements ServiceRegistry {
     @Override
-    public boolean register(ServiceConfig serviceConfig) throws Exception {
+    public void register(ServiceConfig serviceConfig) throws Exception {
         List<RegistryConfig> registryConfigs = RpcContextFactory.getConfigContext().getRegistryConfigs();
         // todo：one register success result success？
         boolean res = false;
@@ -21,6 +21,8 @@ public class ZkServiceRegistry implements ServiceRegistry {
                 res = true;
             }
         }
-        return res;
+        if (res) {
+            RpcContextFactory.getBeanContext().registerService(serviceConfig.getServiceName(), Class.forName(serviceConfig.getRef()).newInstance());
+        }
     }
 }

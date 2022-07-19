@@ -42,8 +42,8 @@ public class ProviderBootstrap implements Bootstrap {
     @SneakyThrows
     protected void registerService(ServiceConfig serviceConfig) {
         ServiceRegistry serviceRegistry = ExtensionLoader.getExtensionLoader(ServiceRegistry.class).getDefaultExtension();
-        if (RpcContextFactory.getBeanContext().getBean(serviceConfig.getServiceName()) == null && serviceRegistry.register(serviceConfig)) {
-            RpcContextFactory.getBeanContext().registerService(serviceConfig.getServiceName(), Class.forName(serviceConfig.getRef()).newInstance());
+        if (RpcContextFactory.getBeanContext().getBean(serviceConfig.getServiceName()) == null) {
+            serviceRegistry.register(serviceConfig);
         }
     }
 }

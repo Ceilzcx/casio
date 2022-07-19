@@ -10,16 +10,13 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanPostProcessor;
-import org.springframework.stereotype.Component;
-
 import java.lang.reflect.Field;
 
-@Slf4j
 /*
  * spring 后置处理器
  * 处理Bean对象在实例化和依赖注入后，在显示调用初始化方法前的自定义逻辑
  */
-@Component
+@Slf4j
 public class CasioBeanPostProcessor implements BeanPostProcessor {
 
     @Override
@@ -45,7 +42,7 @@ public class CasioBeanPostProcessor implements BeanPostProcessor {
         Field[] fields = clazz.getDeclaredFields();
         for (Field field : fields) {
             if (field.isAnnotationPresent(Reference.class)) {
-                Object proxy = RpcProxyUtil.getProxy(clazz);
+                Object proxy = RpcProxyUtil.getProxy(field.getType());
                 field.setAccessible(true);
                 field.set(bean, proxy);
             }
