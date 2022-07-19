@@ -1,6 +1,7 @@
 package com.report.casio.registry.zookeeper;
 
 import com.report.casio.common.extension.ExtensionLoader;
+import com.report.casio.common.utils.StringUtil;
 import com.report.casio.registry.cache.ServiceCacheFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.curator.RetryPolicy;
@@ -56,17 +57,19 @@ public class ZkUtils {
         return false;
     }
 
-    public static void create(String hostname, String path, byte[] data) throws Exception {
+    public static boolean create(String hostname, String path, byte[] data) throws Exception {
         if (!ZK_MAP.containsKey(hostname)) {
             connect(hostname);
         }
         if (!exist(hostname, path)) {
             CuratorFramework curatorFramework = ZK_MAP.get(hostname);
-            curatorFramework.create()
+            String result = curatorFramework.create()
                     .creatingParentsIfNeeded()
                     .withMode(CreateMode.EPHEMERAL)
                     .forPath(path, data);
+            return StringUtil.isNotBlank(result);
         }
+        return true;
     }
 
     public static List<String> getChildNode(String hostname, String path) throws Exception {

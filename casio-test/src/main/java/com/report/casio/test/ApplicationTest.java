@@ -3,6 +3,7 @@ package com.report.casio.test;
 import com.report.casio.boostrap.Bootstraps;
 import com.report.casio.embed.EmbeddedZookeeper;
 import com.report.casio.rpc.proxy.RpcProxyUtil;
+import com.report.casio.test.service.DemoServiceImpl;
 import com.report.casio.test.service.IDemoService;
 
 /**
@@ -22,7 +23,7 @@ public class ApplicationTest {
 
         Bootstraps bootstraps = new Bootstraps();
         bootstraps.start();
-        bootstraps.registerService(IDemoService.class);
+        bootstraps.registerService(DemoServiceImpl.class);
 
         try {
             // casio启动等待时间

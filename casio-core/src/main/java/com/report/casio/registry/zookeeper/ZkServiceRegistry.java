@@ -10,13 +10,17 @@ import java.util.List;
 
 public class ZkServiceRegistry implements ServiceRegistry {
     @Override
-    public void register(ServiceConfig serviceConfig) throws Exception {
+    public boolean register(ServiceConfig serviceConfig) throws Exception {
         List<RegistryConfig> registryConfigs = RpcContextFactory.getConfigContext().getRegistryConfigs();
-
+        // todo：one register success result success？
+        boolean res = false;
         for (RegistryConfig registryConfig : registryConfigs) {
-            ZkUtils.create(registryConfig.getHost(),
+            if (ZkUtils.create(registryConfig.getHost(),
                     StringUtil.generateProviderPath(serviceConfig.getServiceName(), RpcContextFactory.getConfigContext().getProviderConfig().getHost()),
-                    null);
+                    null)) {
+                res = true;
+            }
         }
+        return res;
     }
 }
