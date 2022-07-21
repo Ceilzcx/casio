@@ -2,7 +2,6 @@ package com.report.casio.registry.zookeeper;
 
 import com.report.casio.common.extension.ExtensionLoader;
 import com.report.casio.common.utils.StringUtil;
-import com.report.casio.config.RegistryConfig;
 import com.report.casio.config.context.RpcContextFactory;
 import com.report.casio.domain.RpcRequest;
 import com.report.casio.registry.ServiceDiscovery;
@@ -27,10 +26,10 @@ public class ZkServiceDiscovery implements ServiceDiscovery {
                 hosts = cacheFactory.getCache().get(path);
             } else {
                 Set<String> childNode = new HashSet<>();
-                for (RegistryConfig registryConfig : RpcContextFactory.getConfigContext().getRegistryConfigs()) {
-                    childNode.addAll(ZkUtils.getChildNode(registryConfig.getHost(), path));
+                for (String host : RpcContextFactory.getConfigContext().getRegistryConfig().getHosts()) {
+                    childNode.addAll(ZkUtils.getChildNode(host, path));
                     // 添加watch，如果child node发生变化，删除cache信息
-                    ZkUtils.addNodeWatcher(registryConfig.getHost(), path);
+                    ZkUtils.addNodeWatcher(host, path);
                 }
                 hosts = new ArrayList<>(childNode);
                 cacheFactory.getCache().put(path, hosts);

@@ -1,1 +1,1 @@
-zk=com.report.casio.registry.zookeeper.ZkServiceDiscovery
+zookeeper=com.report.casio.registry.zookeeper.ZkServiceDiscovery

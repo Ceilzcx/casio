@@ -8,6 +8,7 @@ public class Constants {
     public static final String CONSUMER = "consumer";
     public static final String REGISTRY = "registry";
 
+    public static final String PROTOCOL = "protocol";
     public static final String ADDRESS = "address";
     public static final String PORT = "port";
     public static final String TIMEOUT = "timeout";
@@ -17,8 +18,8 @@ public class Constants {
     public static final int DEFAULT_CACHE_SIZE = 1000;
 
     public static final int DEFAULT_PROVIDER_PORT = 9001;
-    public static final String DEFAULT_REGISTRY_ADDRESS = "127.0.0.1";
-    public static final int DEFAULT_REGISTRY_PORT = 2181;
+    public static final String DEFAULT_REGISTRY_ADDRESS = "127.0.0.1:2181";
+    public static final String DEFAULT_REGISTRY_REGISTRY_PROTOCOL = "zookeeper";
 
     public static final String DEFAULT_CONFIG_PATH = "casio.yml";
 

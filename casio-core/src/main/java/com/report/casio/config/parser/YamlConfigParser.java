@@ -5,15 +5,12 @@ import com.report.casio.common.exception.ContextException;
 import com.report.casio.config.ConsumerConfig;
 import com.report.casio.config.ProviderConfig;
 import com.report.casio.config.RegistryConfig;
-import com.report.casio.config.ServiceConfig;
 import com.report.casio.config.context.RpcConfigContext;
 import com.report.casio.config.context.RpcContextFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.yaml.snakeyaml.Yaml;
 
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
 @Slf4j
@@ -30,7 +27,7 @@ public class YamlConfigParser implements ConfigParser {
         int providerPort = Constants.DEFAULT_PROVIDER_PORT;
         int providerTimeout = Constants.DEFAULT_TIMEOUT;
         String registryAddress = Constants.DEFAULT_REGISTRY_ADDRESS;
-        int registryPort = Constants.DEFAULT_REGISTRY_PORT;
+        String registryProtocol = Constants.DEFAULT_REGISTRY_REGISTRY_PROTOCOL;
 
         try {
             if (obj.containsKey(Constants.PROJECT)) {
@@ -46,8 +43,8 @@ public class YamlConfigParser implements ConfigParser {
                     if (registryConfig.containsKey(Constants.ADDRESS)) {
                         registryAddress = registryConfig.get(Constants.ADDRESS).toString();
                     }
-                    if (registryConfig.containsKey(Constants.PORT)) {
-                        registryPort = Integer.parseInt(registryConfig.get(Constants.PORT).toString());
+                    if (registryConfig.containsKey(Constants.PROTOCOL)) {
+                        registryProtocol = registryConfig.get(Constants.PROTOCOL).toString();
                     }
                     if (registryConfig.containsKey(Constants.TIMEOUT)) {
                         providerTimeout = Integer.parseInt(registryConfig.get(Constants.TIMEOUT).toString());
@@ -59,11 +56,8 @@ public class YamlConfigParser implements ConfigParser {
             ConsumerConfig consumerConfig = new ConsumerConfig();
             RegistryConfig registryConfig = new RegistryConfig();
             registryConfig.setAddress(registryAddress);
-            registryConfig.setPort(registryPort);
-            List<RegistryConfig> registryConfigs = new ArrayList<>();
-            registryConfigs.add(registryConfig);
-            List<ServiceConfig> serviceConfigs = new ArrayList<>();
-            return RpcContextFactory.createConfigContext(providerConfig, consumerConfig, registryConfigs, serviceConfigs);
+            registryConfig.setProtocol(registryProtocol);
+            return RpcContextFactory.createConfigContext(providerConfig, consumerConfig, registryConfig);
         } catch (Exception e) {
             throw new ContextException(path + " parser error", e.getCause());
         }

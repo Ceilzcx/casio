@@ -1,6 +1,6 @@
 casio:
   registry:
-    address: 127.0.0.1
-    port: 2181
+    protocol: zookeeper
+    address: 127.0.0.1:2181
   provider:
     port: 9002

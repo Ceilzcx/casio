@@ -5,7 +5,8 @@ import com.report.casio.domain.RpcRequest;
 
 import java.net.InetSocketAddress;
 
-@SPI("zk")
+// todo com.report.casio.config.RegistryConfig.protocol
+@SPI("zookeeper")
 public interface ServiceDiscovery {
 
     // 服务发现接口
