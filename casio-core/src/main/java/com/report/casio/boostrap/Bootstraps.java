@@ -55,11 +55,13 @@ public class Bootstraps implements Bootstrap {
 
     @SneakyThrows
     public void registerService(Class<?> clazz, String version) {
-        ServiceConfig serviceConfig = ServiceConfig.builder()
-                .serviceName(clazz)
-                .ref(clazz.getName())
-                .version(version)
-                .build();
-        this.providerBootstrap.registerService(serviceConfig);
+        if (clazz.getInterfaces().length != 0) {
+            ServiceConfig serviceConfig = ServiceConfig.builder()
+                    .serviceName(clazz.getInterfaces()[0].getName())
+                    .ref(clazz.getName())
+                    .version(version)
+                    .build();
+            this.providerBootstrap.registerService(serviceConfig);
+        }
     }
 }
