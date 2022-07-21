@@ -59,6 +59,7 @@ public class NettyClientHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
         log.error("client exception: ", cause);
+//        ctx.channel().close();    // 是否需要close and reconnect操作
     }
 
 }

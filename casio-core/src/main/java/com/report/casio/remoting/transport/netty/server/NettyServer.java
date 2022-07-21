@@ -72,6 +72,7 @@ public class NettyServer implements Server {
     }
 
     @Override
+    // channel线程安全
     public Channel getChannel() {
         return channel;
     }
