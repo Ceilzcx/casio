@@ -45,7 +45,7 @@ public class ServiceConfig {
                     name = register.interfaceClass().getName();
                 }
             } else {
-                name = serviceClass.getName();
+                name = serviceClass.getInterfaces()[0].getName();
             }
             return serviceName(name);
         }
