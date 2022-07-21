@@ -27,6 +27,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -57,20 +58,23 @@ public class NettyClient implements Client, RpcRequestTransport {
                 });
     }
 
-    @SneakyThrows
     @Override
     // connect方法线程安全，连接会创建一个新的NioSocketChannel
-    public Channel doConnect(InetSocketAddress inetSocketAddress) {
+    public Channel doConnect(InetSocketAddress inetSocketAddress) throws RemotingException {
         CompletableFuture<Channel> completableFuture = new CompletableFuture<>();
-        bootstrap.connect(inetSocketAddress).addListener((ChannelFutureListener) future -> {
-            if (future.isSuccess()) {
-                log.info("client connect success, address: {}", inetSocketAddress.toString());
-                completableFuture.complete(future.channel());
-            } else {
-                throw new RemotingException(future.channel(), "client connect failed");
-            }
-        }).sync();
-        return completableFuture.get();
+        try {
+            bootstrap.connect(inetSocketAddress).addListener((ChannelFutureListener) future -> {
+                if (future.isSuccess()) {
+                    log.info("client connect success, address: {}", inetSocketAddress.toString());
+                    completableFuture.complete(future.channel());
+                } else {
+                    throw new RemotingException(future.channel(), "client connect failed");
+                }
+            }).sync();
+            return completableFuture.get();
+        } catch (InterruptedException | ExecutionException exception) {
+            throw new RemotingException(null, inetSocketAddress, "client connect failed");
+        }
     }
 
     @Override
@@ -79,7 +83,7 @@ public class NettyClient implements Client, RpcRequestTransport {
     }
 
     @Override
-    public TimerChannel getChannel(InetSocketAddress inetSocketAddress) {
+    public TimerChannel getChannel(InetSocketAddress inetSocketAddress) throws RemotingException {
         TimerChannel timerChannel = ChannelClient.get(inetSocketAddress);
         if (timerChannel == null) {
             ChannelClient.put(inetSocketAddress, new TimerChannel(doConnect(inetSocketAddress)));
@@ -94,7 +98,11 @@ public class NettyClient implements Client, RpcRequestTransport {
             SocketAddress localAddress = channel.localAddress();
             ChannelFuture future = channel.close();
             if (future.isSuccess()) {
-                doConnect((InetSocketAddress) localAddress);
+                try {
+                    doConnect((InetSocketAddress) localAddress);
+                } catch (RemotingException e) {
+                    log.error("reconnect remoteAddress: {} error, localAddress: {}", e.getRemoteAddress(), e.getLocalAddress());
+                }
             } else {
                 log.error(localAddress + " close error");
             }

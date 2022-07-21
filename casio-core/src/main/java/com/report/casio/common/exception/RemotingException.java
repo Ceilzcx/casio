@@ -2,33 +2,28 @@ package com.report.casio.common.exception;
 
 import io.netty.channel.Channel;
 
-import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 
 // remoting相关自定义异常类
 public class RemotingException extends Exception {
-    private InetSocketAddress localAddress;
-    private InetSocketAddress remoteAddress;
+    private final SocketAddress localAddress;
+    private final SocketAddress remoteAddress;
 
     public RemotingException(Channel channel, String message) {
+        this(channel.localAddress(), channel.remoteAddress(), message);
     }
 
-    public RemotingException(InetSocketAddress localAddress, InetSocketAddress remoteAddress, String message) {
+    public RemotingException(SocketAddress localAddress, SocketAddress remoteAddress, String message) {
         super(message);
         this.localAddress = localAddress;
         this.remoteAddress = remoteAddress;
     }
 
-    public RemotingException(InetSocketAddress localAddress, InetSocketAddress remoteAddress, Throwable cause) {
-        super(cause);
-        this.localAddress = localAddress;
-        this.remoteAddress = remoteAddress;
-    }
-
-    public InetSocketAddress getLocalAddress() {
+    public SocketAddress getLocalAddress() {
         return localAddress;
     }
 
-    public InetSocketAddress getRemoteAddress() {
+    public SocketAddress getRemoteAddress() {
         return remoteAddress;
     }
 }

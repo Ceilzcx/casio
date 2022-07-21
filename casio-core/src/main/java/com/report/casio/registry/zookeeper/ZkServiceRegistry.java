@@ -6,6 +6,7 @@ import com.report.casio.config.ServiceConfig;
 import com.report.casio.registry.ServiceRegistry;
 
 public class ZkServiceRegistry implements ServiceRegistry {
+
     @Override
     public void register(ServiceConfig serviceConfig) throws Exception {
         boolean res = false;
