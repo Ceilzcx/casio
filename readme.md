@@ -2,36 +2,43 @@
 
 ### 1、项目结构
 
-+ common：公用包
-  + annotation：注解（服务注册、消费、SPI）
-  + exception：自定义异常
-    + `RemotingException.class`：远程连接异常
-    + `RpcException.class` ：RPC调用异常
-  + extension：SPI，参照Dubbo实现，没有dubbo那么复杂
-  + utils：通用工具类
-+ config：
-  + context：启动上下文相关（注册中心、服务提供者、服务消费者等等）
-+ domain
-  + `RpcMessage.class`：消息传递的数据通用类型，数据通过protocol包装后的类
-  + `RpcRequest.class`：服务消费者请求
-  + `RpcResponse.class`：服务提供者调用服务后返回结果
-  + `RpcStatus`：状态和异常
-+ monitor：监控
-+ registry：注册中心相关
-  + cache：注册中心相关信息缓存，不需要重复调用注册中心
-  + nacos
-  + zookeeper
-  + `ServiceDiscovery.class`：服务发现接口
-  + `ServiceRegistry.class` ： 服务注册接口
-+ remoting：远程连接
-  + http：http形式调用，类似Spring cloud
-  + netty：netty连接
-+ rpc：与远程连接模块区分，是远程连接前置和后置工作
-  + cluster：集群相关，负载均衡等
-  + filter：前置过滤
-  + protocol：协议，`com.report.casio.remoting.transport.netty.codec`调用
-  + proxy：代理，客户端和服务端
-+ spring：整合Spring相关
++ casio-core【核心代码模块】
+  + boostrap：启动辅助类（启动框架时，代码整洁）
+  + common：公用包
+    + annotation：注解（服务注册、消费、SPI）
+    + exception：自定义异常
+      + `RemotingException.class`：远程连接异常
+      + `RpcException.class` ：RPC调用异常
+    + extension：SPI，参照Dubbo实现，没有dubbo那么复杂
+    + utils：通用工具类
+    + cache：缓存实现（LRU和LFU）
+  + config：
+    + context：启动上下文相关（注册中心、服务提供者、服务消费者等等）
+    + parser：xml和yaml的解析
+  + domain
+    + `RpcMessage.class`：消息传递的数据通用类型，数据通过protocol包装后的类
+    + `RpcRequest.class`：服务消费者请求
+    + `RpcResponse.class`：服务提供者调用服务后返回结果
+    + `RpcStatus`：状态和异常
+  + monitor：监控
+  + registry：注册中心相关
+    + cache：注册中心相关信息缓存，不需要重复调用注册中心
+    + nacos（未实现）
+    + zookeeper
+    + `ServiceDiscovery.class`：服务发现接口
+    + `ServiceRegistry.class` ： 服务注册接口
+  + remoting：远程连接
+    + http：http形式调用，类似Spring cloud
+    + netty：netty连接
+  + rpc：与远程连接模块区分，是远程连接前置和后置工作
+    + cluster：集群相关，负载均衡等
+    + filter：前置过滤
+    + protocol：协议，`com.report.casio.remoting.transport.netty.codec`调用
+    + proxy：代理，客户端和服务端
++ casio-embed：内嵌其他应用（例：内嵌Zookeeper，不需要额外安装启动zk）
++ casio-spring：结合Spring模块
++ casio-spring-test：casio-spring模块的测试类
++ casio-test：casio-core模块的测试类
 
 
 
@@ -55,7 +62,7 @@ NettyServer：等待消费者发送消息，调用后返回结果
 
 #### 消费者
 
-服务发现类 `ServiceDiscovery`：通过方法名生成对应路径，去注册中心获取ip，每次调用都需要访问注册中心，会对注册中心造成比较大的压力，因此第一次调用获取后将结果缓存起来，通过添加watcher，如果该节点发生变化，删除对应的缓存。
+服务发现类 `ServiceDiscovery`：通过方法名生成对应路径，去注册中心获取ip，每次调用都需要访问注册中心，会对注册中心造成比较大的压力，因此第一次调用获取后将结果缓存起来，通过添加watcher，如果该节点发生变化，删除对应的缓存。缓存需要考虑超过cacheSize后的删除机制，这里参考dubbo
 
 NettyClient：消费者比较复杂，首先你需要拿到对应IP的 Channel，进行消息发送，其次需要等待提供者将消息返回，这里的实现采用 Future 模式实现（不用通过阻塞的方式实现 wait、notify，多线程会出现问题）。
 
@@ -91,17 +98,12 @@ dubbo的超时针对消费者，消费者轮询Future发现超时时，不再等
 
 
 
-### 三、测试
-
-测试由于我的扫描类存在问题，放在test下会扫描不到类，因此放在项目中。同时将项目打包放在Springboot+web下进行测试，50个线程 * 100次循环进行压力测试，测试结果还算不错，也没有发现报错。
-
-
-
-### 四、其他
+### 三、其他
 
 + Rpc涉及到类在网络上的传输，因此需要注意几点：序列化；不需要传输，但是本地需要用到的属性添加 `transient` 修饰符；类的长度丢失问题，涉及协议
 + 在Rpc中会涉及到需要多线程的问题，因此 `ConcurrentMap` 的使用非常必要，在累加的时候需要使用 `AtomicInteger`。
 + `CompletableFuture` 类的使用，这个类在异步中使用非常强大。
++ LRU和LFU算法：一定程度上参考了dubbo。我的LRU是将所有被调用的service全部添加，这样会有频繁切换的缓存的问题，dubbo有一个Map记录service访问次数，达到某个阈值才会被添加到缓存。LFU算法通过Frequency table + 链表实现，具体参考 `com.report.casio.common.cache.LFUCache`
 
 
 
