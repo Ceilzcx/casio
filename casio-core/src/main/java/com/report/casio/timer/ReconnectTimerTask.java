@@ -15,7 +15,8 @@ public class ReconnectTimerTask extends AbstractTimerTask {
 
     @Override
     protected void doTask(TimerChannel channel) {
-        long duration = Math.min(System.currentTimeMillis() - channel.getLastRead(), System.currentTimeMillis() - channel.getLastWrite());
+//        long duration = Math.max(System.currentTimeMillis() - channel.getLastRead(), System.currentTimeMillis() - channel.getLastWrite());
+        long duration = System.currentTimeMillis() - channel.getLastRead();
         if (duration > TIMEOUT) {
             log.warn(channel.getChannel().localAddress() + " client connect timeout");
             nettyClient.reconnect(channel.getChannel());

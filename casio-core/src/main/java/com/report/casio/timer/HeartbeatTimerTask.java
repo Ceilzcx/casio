@@ -5,7 +5,7 @@ import com.report.casio.remoting.transport.netty.TimerChannel;
 import com.report.casio.rpc.protocol.ProtocolConstants;
 
 public class HeartbeatTimerTask extends AbstractTimerTask {
-    private static final int DURATION = 15 * 1000;
+    private static final int DURATION = 10 * 1000;
 
     @Override
     protected void doTask(TimerChannel channel) {

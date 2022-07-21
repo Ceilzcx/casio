@@ -36,6 +36,7 @@ public class NettyClientHandler extends ChannelInboundHandlerAdapter {
                 ChannelClient.get((InetSocketAddress) ctx.channel().remoteAddress()).setLastRead();
             } else if (rpcMessage.getType() == ProtocolConstants.HEARTBEAT) {
                 log.info("client receive heart beat, time: " + new Date());
+                ChannelClient.get((InetSocketAddress) ctx.channel().remoteAddress()).setLastRead();
                 return;
             } else {
                 log.error("client read error msg type, {}", rpcMessage);

@@ -34,6 +34,9 @@ public class NettyServerHandler extends ChannelInboundHandlerAdapter {
                 request = rpcMessage.getRequest();
             } else if (rpcMessage.getType() == ProtocolConstants.HEARTBEAT) {
                 log.info("server receive heart beat, time: " + new Date());
+                RpcMessage resMessage = new RpcMessage();
+                resMessage.setType(ProtocolConstants.HEARTBEAT);
+                ctx.writeAndFlush(resMessage);
                 return;
             } else {
                 log.info("server read error msg type, {}", rpcMessage);
