@@ -6,6 +6,10 @@ import com.report.casio.rpc.proxy.RpcProxyUtil;
 import com.report.casio.test.service.DemoServiceImpl;
 import com.report.casio.test.service.IDemoService;
 
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+
 /**
  * @author hujiaofen
  * @since 15/7/2022
@@ -33,9 +37,12 @@ public class ApplicationTest {
         }
         IDemoService service = RpcProxyUtil.getProxy(IDemoService.class);
         assert service != null;
-        for (int i = 0; i < 10; i++) {
-            System.out.println(service.sayHello());
-        }
+        ScheduledExecutorService executorService = Executors.newScheduledThreadPool(5);
+        executorService.scheduleAtFixedRate(() -> {
+            for (int i = 0; i < 5; i++) {
+                System.out.println(service.sayHello());
+            }
+        }, 0, 20, TimeUnit.SECONDS);
     }
 
 }
